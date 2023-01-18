@@ -3,8 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { Database } from 'sqlite3';
 import { getDBConnection } from '../../../db/connect';
 import { IBlock, IMedia, ResponseData, StatusCode } from '../../../types';
-import { getVideoDurationInSeconds } from 'get-video-duration-electron';
-import fs from 'fs';
+import { createMedia } from '../../../utils/shared-queries/createMedia';
 
 let conn: Database | undefined = undefined;
 
@@ -43,7 +42,7 @@ async function createBlock(
     const { name, start_time, len, day_id, media } = block;
     conn?.run('INSERT INTO block(name, start_time, len, day_id) VALUES (?,?,?,?)', 
     [name, start_time, len, day_id], async function err() {
-      await createMedia(this.lastID, media)
+      await createMedia(conn,this.lastID, media)
       conn?.close();
       return res.status(StatusCode.success).json({ success: true, block });
     })
@@ -52,29 +51,3 @@ async function createBlock(
   }
 }
 
-async function createMedia(blockId: number, media: IMedia[]) {
-  const queries = conn?.prepare(
-    'INSERT INTO media (block_id,path,filename,duration,played) VALUES (?,?,?,?,?)'
-  );
-  for (const item of media) {
-    item.duration = await getDuration(item.fullpath)
-  }
-  media.map(m => 
-    queries?.run([
-      blockId,
-      m.path,
-      m.filename,
-      m.duration ,
-      m.played]
-  ));
-  queries?.finalize();
-}
-
-async function getDuration(path: string) {
-  try {
-    const duration = await getVideoDurationInSeconds(path)
-    return Math.round(duration / 60);
-  } catch(e) {
-    return 25;
-  }
-}

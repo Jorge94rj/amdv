@@ -14,6 +14,7 @@ const Block = () => {
   const { channelId, dayId, dayName } = router.query;
 
   const [minStartTime, setMinStartTime] = useState('00:00');
+  const [selectedBlock, setSelectedBlock] = useState<IBlock>();
   const [blocks, setBlocks] = useState<IBlock[]>([]);
 
   useEffect(() => {
@@ -47,6 +48,12 @@ const Block = () => {
       getBlocks();
     }
     setOpenedSaveBlocklModal(false);
+    setSelectedBlock({});
+  }
+
+  const updateBlock = (block: IBlock) => {
+    setSelectedBlock(block);
+    openSaveBlocklModal();
   }
 
   const deleteBlock = async (blockId: number) => {
@@ -56,7 +63,7 @@ const Block = () => {
         'Content-type': 'application/json'
       },
     });
-  
+
     const res = await req.json();
     getBlocks();
   }
@@ -94,17 +101,17 @@ const Block = () => {
               <label>Starts at: {b.start_time}</label>
               <label>Count: {b.len}</label>
               <ButtonItem>
-                <Image src={EditIcon} />                
+                <Image src={EditIcon} onClick={() => updateBlock(b)} />
               </ButtonItem>
               <ButtonItem onClick={() => deleteBlock(b.id)}>
-                <Image src={CloseIcon} />                
+                <Image src={CloseIcon} />
               </ButtonItem>
             </RightContent>
           </BlockItem>
         ))}
       </BlockList>
       <DynamicModal open={openedSaveBlockModal} onClose={closeSaveBlockModal} width="600px" height="460px">
-        <SaveBlockModal minStartTime={minStartTime} onClose={closeSaveBlockModal} />
+        <SaveBlockModal block={selectedBlock} minStartTime={minStartTime} onClose={closeSaveBlockModal} />
       </DynamicModal>
     </>
   )

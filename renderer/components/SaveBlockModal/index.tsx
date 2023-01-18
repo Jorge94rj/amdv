@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { PathSelector } from './index.style';
 
 interface ISaveBlockProps {
+  block?: IBlock;
   onClose: (open: boolean) => void;
   minStartTime: string;
 }
@@ -17,19 +18,23 @@ const supportedMedia = [
   'F4V'
 ];
 
-const SaveBlockModal = ({ onClose, minStartTime }: ISaveBlockProps) => {
+const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
   const router = useRouter();
   const { channelId, dayId } = router.query;
+  const {id, name, start_time, len} = block || {};
   const inputFileRef = useRef<HTMLInputElement>(null);
 
   const [media, setMedia] = useState<IMedia[]>([]);
 
   const [form, setForm] = useState({
-    name: '',
-    start_time: minStartTime,
-    len: 1,
+    id: id || null,
+    name: name || '',
+    start_time: start_time || minStartTime,
+    len: len || 1,
     day_id: dayId,
   });
+
+  console.log(form)
 
   useEffect(() => {
     const current = inputFileRef.current;
@@ -78,14 +83,25 @@ const SaveBlockModal = ({ onClose, minStartTime }: ISaveBlockProps) => {
 
   const handleSubmit = async (e: Event & FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const req = await fetch('/api/block', {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json'
-      },
-      body: JSON.stringify({ ...form, media })
-    });
-    await req.json();
+    if(!id) {
+      const req = await fetch('/api/block', {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify({ ...form, media })
+      });
+      await req.json();
+    } else {
+      const req = await fetch(`/api/block/${dayId}/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify({ ...form, media })
+      });
+      await req.json();
+    }
     onClose(true);
   }
 
@@ -101,7 +117,7 @@ const SaveBlockModal = ({ onClose, minStartTime }: ISaveBlockProps) => {
         <label>Start time</label>
       </RowItem>
       <RowItem>
-        <input name="start_time" type="time" min={minStartTime} value={form.start_time} onChange={handleChange} />
+        <input name="start_time" type="time" value={form.start_time} onChange={handleChange} />
       </RowItem>
       <RowItem>
         <label>Path</label>
@@ -129,7 +145,11 @@ const SaveBlockModal = ({ onClose, minStartTime }: ISaveBlockProps) => {
           type="submit"
           inverse
           disabled={
-            !form.start_time || !form.len || media.length == 0 || form.start_time < minStartTime}>
+            !form.start_time || 
+            !form.len || 
+            (media.length == 0 && !id) || 
+            (form.start_time < minStartTime && !id)
+          }>
             Save
         </Button>
       </RowItem>
