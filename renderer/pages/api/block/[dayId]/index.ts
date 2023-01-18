@@ -1,10 +1,9 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { UpdateQuery } from "mongoose";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Database } from "sqlite3";
-import { getDBConnection } from "../../../db/connect";
-import { ResponseData, StatusCode } from "../../../types";
-import { deleteFile } from "../file";
+import { getDBConnection } from "../../../../db/connect";
+import { ResponseData, StatusCode } from "../../../../types";
+import { deleteFile } from "../../file";
 
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("../../airlike.db");
@@ -57,7 +56,7 @@ async function getBlocksByDayId(res: NextApiResponse, id: number) {
           [lastItem.day_id, lastItem.id],
           function (err, row) {
             // const avgDuration = row.avg;
-            const avgDuration = row.avg && row.avg > 0 ? row.avg : 25;
+            const avgDuration = row?.avg && row?.avg > 0 ? row?.avg : 25;
             if (avgDuration) {
               const offset = lastItem.len * avgDuration;
               const now = new Date(`1994-10-19T${lastItem.start_time}:00`);
@@ -82,19 +81,6 @@ async function getBlocksByDayId(res: NextApiResponse, id: number) {
     return res.status(StatusCode.fail).json({ success: false, error });
   }
 }
-
-// async function updateAsset(
-//   res: NextApiResponse,
-//   id: string,
-//   body: UpdateQuery<unknown>
-// ) {
-//   try {
-//     const asset = await Asset.findByIdAndUpdate(id, body);
-//     return res.status(StatusCode.success).json({ success: true, asset });
-//   } catch (error) {
-//     res.status(StatusCode.fail).json({ success: false, error });
-//   }
-// }
 
 async function deleteBlocks(res: NextApiResponse, dayId: number) {
   try {

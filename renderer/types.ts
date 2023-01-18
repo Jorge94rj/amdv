@@ -52,6 +52,7 @@ export interface IMedia {
   id?:number;
   block_id?: number;
   path: string;
+  fullpath: string;
   filename: string;
   duration: number;
   played: number;

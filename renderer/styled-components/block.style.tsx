@@ -25,12 +25,32 @@ export const BlockItem = styled.div`
   margin-bottom: 8px;
   border: 1px solid #cccccc;
   border-radius: 4px;
+  button {
+    display: none;
+  }
   &:hover {
     cursor: pointer;
     color: #0099cc;
     background: #fff;
     border-color: #0099cc;
+    button {
+      display: flex;
+      filter: invert(41%) sepia(71%) saturate(3182%) hue-rotate(169deg) brightness(98%) contrast(101%);
+    }
   }
+`;
+
+export const ButtonItem = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 2px solid #0099cc;
+  border-radius: 50%;
+  margin: 0 4px;
+  cursor: pointer;
 `;
 
 export const LeftContent = styled.div`

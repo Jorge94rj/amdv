@@ -51,7 +51,6 @@ const SaveBlockModal = ({ onClose, minStartTime }: ISaveBlockProps) => {
   const handleFile = async (e: ChangeEvent<HTMLInputElement>) => {
     setMedia([]);
     const files = e.target.files;
-    let order = 0;
     if (files) {
       for (const file in files) {
         const fileObj = files[file] as File & {path: 'string'};
@@ -59,33 +58,22 @@ const SaveBlockModal = ({ onClose, minStartTime }: ISaveBlockProps) => {
         if (filename) {
           const ext = filename.split('.')[1]?.toUpperCase()
           if (supportedMedia.indexOf(ext) !== -1 && fileObj?.webkitRelativePath && fileObj.name !== '.DS_Store') {
-            console.log('real_path->', fileObj.path)
-            const path = fileObj.webkitRelativePath.split('/');
-            path.pop();
-            const trimmedPath = path.join('/').concat('/');
-
-            const video = document.createElement('video');
-            video.preload = 'metadata'
-            video.src = URL.createObjectURL(fileObj)
-            video.onloadedmetadata = async () => {
-              window.URL.revokeObjectURL(video.src);
-              const order = Number(video.getAttribute('order'));
-              const duration = Math.round(video.duration / 60);
-              media[order].duration = duration;
-            }
-            video.setAttribute('order', order.toString())
+            const relativepathArr = fileObj.webkitRelativePath.split('/');
+            relativepathArr.pop();
+            const relativepath = relativepathArr.join('/').concat('/');
             media.push({
-              path: trimmedPath,
-              filename: filename,
+              fullpath: fileObj.path,
+              path: relativepath,
+              filename,
               duration: 0,
               played: 0
             })
-            order++;
           }
         }
       }
     }
-    setMedia([...media]);
+    const sorted = media.sort((a,b) => (a.filename > b.filename) ? 1 : ((b.filename > a.filename) ? -1 : 0));
+    setMedia([...sorted]);
   }
 
   const handleSubmit = async (e: Event & FormEvent<HTMLFormElement>) => {
@@ -126,6 +114,7 @@ const SaveBlockModal = ({ onClose, minStartTime }: ISaveBlockProps) => {
             name="path"
             type="file"
             accept="video/mp4,video/x-m4v,video/*"
+            multiple
             onChange={handleFile} />
         </PathSelector>
       </RowItem>

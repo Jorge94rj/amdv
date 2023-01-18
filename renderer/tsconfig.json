@@ -23,7 +23,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "pages/api/block/[dayId]"  ],
   "exclude": [
     "node_modules"
   ]

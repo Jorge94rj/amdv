@@ -4,7 +4,10 @@ import { DynamicModal } from "../../../components/Modal"
 import SaveBlockModal from "../../../components/SaveBlockModal"
 import { Button } from "../../../styles/form.style"
 import { dayNames, IBlock } from "../../../types"
-import { ActionHeader, BlockItem, BlockList, LeftContent, RightContent } from "../../../styled-components/block.style"
+import { ActionHeader, BlockItem, BlockList, ButtonItem, LeftContent, RightContent } from "../../../styled-components/block.style"
+import Image from "next/image";
+import EditIcon from '../../../public/edit.svg';
+import CloseIcon from '../../../public/trash.svg';
 
 const Block = () => {
   const router = useRouter();
@@ -30,7 +33,8 @@ const Block = () => {
     });
 
     const res = await req.json();
-    setBlocks([...res.blocks]);
+    const data = res.blocks || [];
+    setBlocks([...data]);
     setMinStartTime(res.minStartTime)
   }
 
@@ -43,6 +47,18 @@ const Block = () => {
       getBlocks();
     }
     setOpenedSaveBlocklModal(false);
+  }
+
+  const deleteBlock = async (blockId: number) => {
+    const req = await fetch(`/api/block/${dayId}/${blockId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-type': 'application/json'
+      },
+    });
+  
+    const res = await req.json();
+    getBlocks();
   }
 
   const resetBlocks = async () => {
@@ -77,6 +93,12 @@ const Block = () => {
             <RightContent>
               <label>Starts at: {b.start_time}</label>
               <label>Count: {b.len}</label>
+              <ButtonItem>
+                <Image src={EditIcon} />                
+              </ButtonItem>
+              <ButtonItem onClick={() => deleteBlock(b.id)}>
+                <Image src={CloseIcon} />                
+              </ButtonItem>
             </RightContent>
           </BlockItem>
         ))}

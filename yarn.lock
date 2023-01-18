@@ -2421,7 +2421,7 @@
   "resolved" "https://registry.npmjs.org/events/-/events-3.3.0.tgz"
   "version" "3.3.0"
 
-"execa@5.1.1":
+"execa@^5.0.0", "execa@5.1.1":
   "integrity" "sha512-8uSpZZocAZRBAPIEINJj3Lo9HyGitllczc27Eh5YYojjMFMn8yHMDMaUHE2Jqfq05D/wucwI4JGURyXt1vchyg=="
   "resolved" "https://registry.npmjs.org/execa/-/execa-5.1.1.tgz"
   "version" "5.1.1"
@@ -2473,6 +2473,11 @@
   "version" "1.1.0"
   dependencies:
     "pend" "~1.2.0"
+
+"ffprobe-static-electron@^2.0.0":
+  "integrity" "sha512-HtEUZ7qpi5WcbgnI7m0slS6qzjoKnlqfxW6Yx7cWV75hRhkWnwlhq0mVAyWtRm2hujMm2/8sfhq1A/8RC6A0GQ=="
+  "resolved" "https://registry.npmjs.org/ffprobe-static-electron/-/ffprobe-static-electron-2.0.2.tgz"
+  "version" "2.0.2"
 
 "filelist@^1.0.1":
   "integrity" "sha512-w1cEuf3S+DrLCQL7ET6kz+gmlJdbq9J7yXCSjK/OZCPA+qEN1WyF4ZAf0YYJa4/shHJra2t/d/r8SV4Ji+x+8Q=="
@@ -2653,6 +2658,15 @@
   "integrity" "sha512-ts6Wi+2j3jQjqi70w5AlN8DFnkSwC+MqmxEzdEALB2qXZYV3X/b1CTfgPLGJNMeAWxdPfU8FO1ms3NUfaHCPYg=="
   "resolved" "https://registry.npmjs.org/get-stream/-/get-stream-6.0.1.tgz"
   "version" "6.0.1"
+
+"get-video-duration-electron@^3.1.0":
+  "integrity" "sha512-7qnv6/SpvAgbjsJHTZ3HP+2ReQoaskfXi73Xik4/Ni1cXAzWvCQ7V0EESqeCRDjOBownMfR/60awP+WWIk7a+A=="
+  "resolved" "https://registry.npmjs.org/get-video-duration-electron/-/get-video-duration-electron-3.1.0.tgz"
+  "version" "3.1.0"
+  dependencies:
+    "execa" "^5.0.0"
+    "ffprobe-static-electron" "^2.0.0"
+    "is-stream" "^2.0.0"
 
 "glob-to-regexp@^0.4.1":
   "integrity" "sha512-lkX1HJXwyMcprw/5YUZc2s7DrpAiHB21/V+E1rHUrVNokkvB6bqMzT0VfV6/86ZNabt1k14YOIaT7nDvOX3Iiw=="
