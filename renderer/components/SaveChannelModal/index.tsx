@@ -1,6 +1,7 @@
 import { FormEvent, useRef, useState } from "react";
 import { Button, Legend, Remark, RowItem } from "../../styles/form.style";
 import { HandleEventChangeInterface } from "../../types";
+import { useBlockUI } from "../AppProviders/BlockUIProvider";
 import Icon from "../Icon";
 import { IconWrapper } from "./index.style";
 
@@ -9,6 +10,7 @@ interface ISaveChannelProps {
 }
 
 const SaveChannelModal = ({onClose}: ISaveChannelProps) => {
+  const { toggleBlocking } = useBlockUI();
   const [form, setForm] = useState({
     name: '',
   });
@@ -18,12 +20,14 @@ const SaveChannelModal = ({onClose}: ISaveChannelProps) => {
 
   const handleSubmit = async(e: Event & FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    toggleBlocking(true);
     const req = await fetch('/api/channel', {
       method: 'POST',
       body: JSON.stringify(form)
     });
 
     const data = await req.json();
+    toggleBlocking(false);
     onClose(true);
   }
 
@@ -54,25 +58,6 @@ const SaveChannelModal = ({onClose}: ISaveChannelProps) => {
       <RowItem>
         <Button type="submit" inverse disabled={!form.name}>Save</Button>
       </RowItem>
-      {/* <RowItem>
-        <label>Type</label>
-      </RowItem>
-      <RowItem>
-        <select name="assetType" value={form.assetType} onChange={handleChange} >
-          <option value="" disabled>Select type</option>
-          <option value="model">Model</option>
-          <option value="image">Image</option>
-        </select>
-      </RowItem>
-      <RowItem>
-        <IconWrapper onClick={openFileHandler}>
-          <input ref={inputFileRef} type="file" accept="image/png, .gltf" onChange={handleFileChange} />
-          <Icon name="upload" color="#fff" />
-        </IconWrapper>
-      </RowItem>
-      <RowItem>
-        <Button type="submit" disabled={!form.name || !form.assetType || !file}>Save</Button>
-      </RowItem> */}
     </form>
   )
 }

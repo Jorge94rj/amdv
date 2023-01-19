@@ -8,9 +8,11 @@ import { ActionHeader, BlockItem, BlockList, ButtonItem, LeftContent, RightConte
 import Image from "next/image";
 import EditIcon from '../../../public/edit.svg';
 import CloseIcon from '../../../public/trash.svg';
+import { useBlockUI } from "../../../components/AppProviders/BlockUIProvider"
 
 const Block = () => {
   const router = useRouter();
+  const { toggleBlocking } = useBlockUI();
   const { channelId, dayId, dayName } = router.query;
 
   const [minStartTime, setMinStartTime] = useState('00:00');
@@ -26,6 +28,7 @@ const Block = () => {
 
   const getBlocks = async () => {
     // const req = await fetch(`/api/block/${channelId}/${dayId}`, {
+    toggleBlocking(true);
     const req = await fetch(`/api/block/${dayId}`, {
       method: 'GET',
       headers: {
@@ -36,7 +39,8 @@ const Block = () => {
     const res = await req.json();
     const data = res.blocks || [];
     setBlocks([...data]);
-    setMinStartTime(res.minStartTime)
+    setMinStartTime(res.minStartTime);
+    toggleBlocking(false);
   }
 
   const [openedSaveBlockModal, setOpenedSaveBlocklModal] = useState(false);
@@ -57,6 +61,7 @@ const Block = () => {
   }
 
   const deleteBlock = async (blockId: number) => {
+    toggleBlocking(true);
     const req = await fetch(`/api/block/${dayId}/${blockId}`, {
       method: 'DELETE',
       headers: {
@@ -65,10 +70,12 @@ const Block = () => {
     });
 
     const res = await req.json();
+    toggleBlocking(false);
     getBlocks();
   }
 
   const resetBlocks = async () => {
+    toggleBlocking(true);
     const req = await fetch(`/api/block/${dayId}`, {
       method: 'DELETE',
       headers: {
@@ -77,6 +84,7 @@ const Block = () => {
     });
 
     const res = await req.json();
+    toggleBlocking(false);
     getBlocks();
   }
 

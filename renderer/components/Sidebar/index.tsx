@@ -2,12 +2,14 @@ import { useRouter } from "next/router"
 import { useEffect, useState } from "react";
 import { Button, RowItem } from "../../styles/form.style"
 import { IChannel } from "../../types";
+import { useBlockUI } from "../AppProviders/BlockUIProvider";
 import { DynamicModal } from "../Modal";
 import SaveChannelModal from "../SaveChannelModal";
 import { ChannelItem, ChannelList, HeaderItem, HeaderWrapper, RowSection } from "./index.style"
 
 const Sidebar = () => {
   const router = useRouter();
+  const { toggleBlocking } = useBlockUI();
   const { channelId } = router.query;
 
   const [channels, setChannels] = useState<IChannel[]>([]);
@@ -26,6 +28,7 @@ const Sidebar = () => {
   }, []);
 
   const getChannels = async () => {
+    toggleBlocking(true);
     const req = await fetch('/api/channel', {
       method: 'GET',
       headers: {
@@ -35,6 +38,7 @@ const Sidebar = () => {
     const data = await req.json();
     const resChannels = data.channels || [];
     setChannels(resChannels)
+    toggleBlocking(false);
   }
 
   return (

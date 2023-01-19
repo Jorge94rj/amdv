@@ -6,9 +6,11 @@ import Image from 'next/image';
 import ImageIcon from '../../public/image.svg';
 import { useRouter } from 'next/router';
 import { IconWrapper } from '../../components/Card/index.style';
+import { useBlockUI } from '../../components/AppProviders/BlockUIProvider';
 
 const Week = () => {
   const router = useRouter();
+  const { toggleBlocking } = useBlockUI();
   const { channelId } = router.query;
   const [days, setDays] = useState<IDay[]>([]);
 
@@ -20,6 +22,7 @@ const Week = () => {
   }, [channelId]);
 
   const getDays = async () => {
+    toggleBlocking(true);
     const req = await fetch(`/api/week/${channelId}`, {
       method: 'GET',
       headers: {
@@ -29,6 +32,7 @@ const Week = () => {
 
     const res = await req.json();
     setDays(res.days);
+    toggleBlocking(false);
   }
 
   const getDayName = (day: number): number => {

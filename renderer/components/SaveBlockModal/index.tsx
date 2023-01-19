@@ -3,6 +3,7 @@ import { HandleEventChangeInterface, IBlock, IMedia } from '../../types';
 import { Button, RowItem } from '../../styles/form.style';
 import { useRouter } from 'next/router';
 import { PathSelector } from './index.style';
+import { useBlockUI } from '../AppProviders/BlockUIProvider';
 
 interface ISaveBlockProps {
   block?: IBlock;
@@ -20,6 +21,7 @@ const supportedMedia = [
 
 const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
   const router = useRouter();
+  const { toggleBlocking } = useBlockUI();
   const { channelId, dayId } = router.query;
   const {id, name, start_time, len} = block || {};
   const inputFileRef = useRef<HTMLInputElement>(null);
@@ -33,8 +35,6 @@ const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
     len: len || 1,
     day_id: dayId,
   });
-
-  console.log(form)
 
   useEffect(() => {
     const current = inputFileRef.current;
@@ -84,6 +84,7 @@ const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
   const handleSubmit = async (e: Event & FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if(!id) {
+      toggleBlocking(true);
       const req = await fetch('/api/block', {
         method: 'POST',
         headers: {
@@ -92,7 +93,9 @@ const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
         body: JSON.stringify({ ...form, media })
       });
       await req.json();
+      toggleBlocking(false);
     } else {
+      toggleBlocking(true);
       const req = await fetch(`/api/block/${dayId}/${id}`, {
         method: 'PUT',
         headers: {
@@ -101,6 +104,7 @@ const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
         body: JSON.stringify({ ...form, media })
       });
       await req.json();
+      toggleBlocking(false);
     }
     onClose(true);
   }
