@@ -9,6 +9,7 @@ import { IconWrapper } from "../Card/index.style";
 import DbIcon from '../../public/database.svg';
 import ExportIcon from '../../public/export.svg';
 import CloseIcon from '../../public/trash.svg';
+import Swal from "sweetalert2";
 
 const Settings = () => {
   const router = useRouter();
@@ -25,6 +26,16 @@ const Settings = () => {
   }
 
   const handleDBdeletion = async () => {
+    const confirm = await Swal.fire({
+      title: 'Warning',
+      text: 'Are you sure you want to delete DB?',
+      showCancelButton: true
+    });
+
+    if (!confirm.isConfirmed) {
+      return;
+    }
+
     const req = await fetch('/api/settings/delete-db', {
       method: 'GET',
       headers: {

@@ -9,6 +9,7 @@ import Image from "next/image";
 import EditIcon from '../../../public/edit.svg';
 import CloseIcon from '../../../public/trash.svg';
 import { useBlockUI } from "../../../components/AppProviders/BlockUIProvider"
+import Swal from "sweetalert2"
 
 const Block = () => {
   const router = useRouter();
@@ -61,6 +62,16 @@ const Block = () => {
   }
 
   const deleteBlock = async (blockId: number) => {
+    const confirm = await Swal.fire({
+      title: 'Warning',
+      text: 'Are you sure you want to delete THIS Block?',
+      showCancelButton: true
+    });
+
+    if (!confirm.isConfirmed) {
+      return;
+    }
+
     toggleBlocking(true);
     const req = await fetch(`/api/block/${dayId}/${blockId}`, {
       method: 'DELETE',
@@ -75,6 +86,16 @@ const Block = () => {
   }
 
   const resetBlocks = async () => {
+    const confirm = await Swal.fire({
+      title: 'Warning',
+      text: 'Are you sure you want to delete ALL Blocks?',
+      showCancelButton: true
+    });
+
+    if (!confirm.isConfirmed) {
+      return;
+    }
+    
     toggleBlocking(true);
     const req = await fetch(`/api/block/${dayId}`, {
       method: 'DELETE',
