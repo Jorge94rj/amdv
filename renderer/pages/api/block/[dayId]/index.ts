@@ -3,7 +3,6 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { Database } from "sqlite3";
 import { getDBConnection } from "../../../../db/connect";
 import { ResponseData, StatusCode } from "../../../../types";
-import { deleteFile } from "../../file";
 
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("../../airlike.db");

@@ -2,6 +2,7 @@
 import { ResponseData, StatusCode } from '../../../../types';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
+import { DB_NAME } from '../../../../db/connect';
 
 export default async function handler(
   req: NextApiRequest,
@@ -37,7 +38,7 @@ async function getDBFile(
   res: NextApiResponse,
 ) {
   try {
-    const filePath = './renderer/db/airlike.db';
+    const filePath = DB_NAME;
     getFile(res, filePath);
   } catch (error) {
     res.status(StatusCode.fail).json({ success: false, error });

@@ -1,5 +1,4 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { UpdateQuery } from 'mongoose';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Database } from 'sqlite3';
 import { getDBConnection } from '../../../db/connect';
@@ -49,7 +48,7 @@ async function getChannels(res: NextApiResponse) {
 
 async function createChannel(
   res: NextApiResponse,
-  body: UpdateQuery<unknown>
+  body
 ) {
   try {
     const channel = JSON.parse(body as unknown as string);

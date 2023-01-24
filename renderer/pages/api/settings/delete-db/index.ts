@@ -2,10 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { ResponseData, StatusCode } from '../../../../types';
 import fs from 'fs';
-
-const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('./renderer/db/airlike.db');
-
+import { DB_NAME } from '../../../../db/connect';
 
 export default async function handler(
   req: NextApiRequest,
@@ -27,8 +24,8 @@ export default async function handler(
 
 async function deleteDB(res: NextApiResponse) {
   try {
-    if (fs.existsSync('./renderer/db/airlike.db')) {
-      fs.unlinkSync('./renderer/db/airlike.db')
+    if (fs.existsSync(DB_NAME)) {
+      fs.unlinkSync(DB_NAME)
       res.status(StatusCode.success).json({ success: true, message: 'DB deleted successfully' });
     } else {
       res.status(StatusCode.success).json({ success: true, message: 'DB does not exist!' });

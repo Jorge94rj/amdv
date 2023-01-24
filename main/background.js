@@ -14,8 +14,8 @@ if (isProd) {
   await app.whenReady();
 
   const mainWindow = createWindow('main', {
-    width: 1200,
-    height: 800,
+    width: 1280,
+    height: 720,
   });
 
   if (isProd) {

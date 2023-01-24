@@ -2,6 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ResponseData, StatusCode } from "../../../../types";
 import fs from "fs";
+import { DB_NAME } from "../../../../db/connect";
 
 const sqlite3 = require("sqlite3").verbose();
 
@@ -71,12 +72,12 @@ export default async function handler(
 
 async function createDB(res: NextApiResponse) {
   try {
-    if (fs.existsSync("./renderer/db/airlike.db")) {
+    if (fs.existsSync(DB_NAME)) {
       res
         .status(StatusCode.success)
         .json({ success: true, message: "DB already exists!" });
     } else {
-      const db = new sqlite3.Database("./renderer/db/airlike.db");
+      const db = new sqlite3.Database(DB_NAME);
       db.serialize(async () => {
         statements.map(query => db.run(query));
       });
