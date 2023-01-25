@@ -7,6 +7,7 @@ import ImageIcon from '../../public/image.svg';
 import { useRouter } from 'next/router';
 import { IconWrapper } from '../../components/Card/index.style';
 import { useBlockUI } from '../../components/AppProviders/BlockUIProvider';
+import { ipcRenderer } from 'electron';
 
 const Week = () => {
   const router = useRouter();
@@ -23,16 +24,12 @@ const Week = () => {
 
   const getDays = async () => {
     toggleBlocking(true);
-    const req = await fetch(`/api/week/${channelId}`, {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json'
-      },
-    })
+    ipcRenderer.send('send-days', channelId);
+    ipcRenderer.once('reply-days', (event, data) => {
+      setDays(data.days);
+      toggleBlocking(false);
+    });
 
-    const res = await req.json();
-    setDays(res.days);
-    toggleBlocking(false);
   }
 
   const getDayName = (day: number): number => {

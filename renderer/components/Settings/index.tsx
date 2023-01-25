@@ -1,28 +1,20 @@
-import { Button } from "../../styles/form.style"
-import Icon from "../Icon"
 import Image from 'next/image';
 import { Container } from "./index.style"
-import Database from '../../public/database.svg';
-import { useRouter } from "next/router";
 import Card from "../Card";
 import { IconWrapper } from "../Card/index.style";
 import DbIcon from '../../public/database.svg';
 import ExportIcon from '../../public/export.svg';
 import CloseIcon from '../../public/trash.svg';
 import Swal from "sweetalert2";
+import { ipcRenderer } from "electron";
 
 const Settings = () => {
-  const router = useRouter();
-
+  
   const handleDBcreation = async() => {
-    const req = await fetch('/api/settings/create-db', {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json'
-      },
-    })
-
-    const data = await req.json();
+    ipcRenderer.send('send-create-db');
+    ipcRenderer.once('reply-create-db', (event, data) => {
+      console.log('data=>', data);
+    });
   }
 
   const handleDBdeletion = async () => {
@@ -36,37 +28,17 @@ const Settings = () => {
       return;
     }
 
-    const req = await fetch('/api/settings/delete-db', {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json'
-      },
-    })
-
-    const data = await req.json();
+    ipcRenderer.send('send-delete-db');
+    ipcRenderer.once('reply-delete-db', (event, data) => {
+      console.log('data=>', data);
+    });
   }
 
   const handleDBExport = async () => {
-    const req = await fetch('/api/settings/export-db', {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json'
-      },
-    })
-    const data = await req.blob();
-    const blob = new Blob([data]);
-    const blobUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = blobUrl;
-    link.setAttribute('download', 'airlike.db')
-    link.onclick = () => {
-      setTimeout(() => {
-        window.URL.revokeObjectURL(link.href)
-      }, 1500);
-    }
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    ipcRenderer.send('send-export-db');
+    ipcRenderer.once('reply-export-db', (event, data) => {
+      console.log('data=>', data);
+    });
   }
 
   return (

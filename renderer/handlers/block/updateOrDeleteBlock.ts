@@ -1,9 +1,9 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Database } from "sqlite3";
-import { getDBConnection } from "../../../../db/connect";
-import { ResponseData, StatusCode } from "../../../../types";
-import { createMedia } from "../../../../utils/shared-queries/createMedia";
+import { getDBConnection } from "../../../db/connect";
+import { ResponseData, StatusCode } from "../../../types";
+import { createMedia } from "../../../utils/shared-queries/createMedia";
 
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("../../airlike.db");

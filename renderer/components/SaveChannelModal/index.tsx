@@ -1,3 +1,4 @@
+import { ipcRenderer } from "electron";
 import { FormEvent, useRef, useState } from "react";
 import { Button, Legend, Remark, RowItem } from "../../styles/form.style";
 import { HandleEventChangeInterface } from "../../types";
@@ -21,14 +22,11 @@ const SaveChannelModal = ({onClose}: ISaveChannelProps) => {
   const handleSubmit = async(e: Event & FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     toggleBlocking(true);
-    const req = await fetch('/api/channel', {
-      method: 'POST',
-      body: JSON.stringify(form)
+    ipcRenderer.send('send-create-channel', form);
+    ipcRenderer.once('reply-create-channel', () => {
+      toggleBlocking(false);
+      onClose(true);
     });
-
-    const data = await req.json();
-    toggleBlocking(false);
-    onClose(true);
   }
 
   const handleChange = (e: HandleEventChangeInterface) => {
@@ -38,7 +36,6 @@ const SaveChannelModal = ({onClose}: ISaveChannelProps) => {
       [name]: value
     })
   }
-
 
   return (
     <form onSubmit={handleSubmit}>

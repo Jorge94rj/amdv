@@ -10,6 +10,7 @@ import EditIcon from '../../../public/edit.svg';
 import CloseIcon from '../../../public/trash.svg';
 import { useBlockUI } from "../../../components/AppProviders/BlockUIProvider"
 import Swal from "sweetalert2"
+import { ipcRenderer } from "electron"
 
 const Block = () => {
   const router = useRouter();
@@ -28,20 +29,14 @@ const Block = () => {
   }, [dayId])
 
   const getBlocks = async () => {
-    // const req = await fetch(`/api/block/${channelId}/${dayId}`, {
     toggleBlocking(true);
-    const req = await fetch(`/api/block/${dayId}`, {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json'
-      },
+    ipcRenderer.send('send-blocks');
+    ipcRenderer.once('reply-blocks', (event, data) => {
+      const b = data.blocks || [];
+      setBlocks([...b]);
+      setMinStartTime(b.minStartTime);
+      toggleBlocking(false);
     });
-
-    const res = await req.json();
-    const data = res.blocks || [];
-    setBlocks([...data]);
-    setMinStartTime(res.minStartTime);
-    toggleBlocking(false);
   }
 
   const [openedSaveBlockModal, setOpenedSaveBlocklModal] = useState(false);
@@ -97,16 +92,19 @@ const Block = () => {
     }
     
     toggleBlocking(true);
-    const req = await fetch(`/api/block/${dayId}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-type': 'application/json'
-      },
+    // const req = await fetch(`/api/block/${dayId}`, {
+    //   method: 'DELETE',
+    //   headers: {
+    //     'Content-type': 'application/json'
+    //   },
+    // });
+    ipcRenderer.send('send-delete-blocks');
+    ipcRenderer.once('reply-delete-blocks', (event, data) => {
+      console.log('data=>', data);
+      toggleBlocking(false);
+      getBlocks();
     });
 
-    const res = await req.json();
-    toggleBlocking(false);
-    getBlocks();
   }
 
   return (

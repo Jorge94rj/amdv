@@ -1,8 +1,5 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import type { NextApiRequest, NextApiResponse } from "next";
-import { ResponseData, StatusCode } from "../../../../types";
+import { ipcMain } from "electron";
 import fs from "fs";
-import { DB_NAME } from "../../../../db/connect";
 
 const sqlite3 = require("sqlite3").verbose();
 
@@ -53,38 +50,21 @@ const statements = [
   `,
 ];
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<ResponseData>
-) {
-  const { method } = req;
-
-  switch (method) {
-    case "GET":
-      createDB(res);
-      break;
-    default:
-      return res
-        .status(StatusCode.fail)
-        .json({ success: false, error: "Server failed" });
-  }
-}
-
-async function createDB(res: NextApiResponse) {
+export const createDB = ipcMain.on('send-create-db', (event, arg) => {
+  const DB_NAME = `${global.usrDataPath}/airlike.db`;
   try {
     if (fs.existsSync(DB_NAME)) {
-      res
-        .status(StatusCode.success)
-        .json({ success: true, message: "DB already exists!" });
+      event.reply('reply-create-db', {message: 'DB already exists!'});
     } else {
       const db = new sqlite3.Database(DB_NAME);
-      db.serialize(async () => {
+        db.serialize(async () => {
         statements.map(query => db.run(query));
       });
       db.close();
-      res.status(StatusCode.success).json({ success: true, message: "DB created succesfully" });
+      event.reply('reply-create-db', {message: 'DB created succesfully'});
     }
   } catch (error) {
-    res.status(StatusCode.fail).json({ success: false, error });
+    event.reply('reply-create-db', error);
   }
-}
+});
+
