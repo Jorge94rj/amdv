@@ -52,12 +52,3 @@ export const deleteBlocks = ipcMain.on('send-delete-blocks', (event, dayId) => {
     event.reply('reply-delete-blocks', error);
   }
 });
-
-// async function deleteBlocks(res: NextApiResponse, dayId: number) {
-//   try {
-//     conn?.run('DELETE FROM block WHERE day_id=?',[dayId]);
-//     return res.status(StatusCode.success).json({ success: true, message: 'Blocks deleted succesfully' });
-//   } catch (error) {
-//     res.status(StatusCode.fail).json({ success: false, error });
-//   }
-// }
