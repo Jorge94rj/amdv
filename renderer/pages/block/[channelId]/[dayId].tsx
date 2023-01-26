@@ -30,11 +30,11 @@ const Block = () => {
 
   const getBlocks = async () => {
     toggleBlocking(true);
-    ipcRenderer.send('send-blocks');
+    ipcRenderer.send('send-blocks', dayId);
     ipcRenderer.once('reply-blocks', (event, data) => {
       const b = data.blocks || [];
       setBlocks([...b]);
-      setMinStartTime(b.minStartTime);
+      setMinStartTime(data.minStartTime);
       toggleBlocking(false);
     });
   }
@@ -45,7 +45,15 @@ const Block = () => {
   }
   const closeSaveBlockModal = (saved?: boolean) => {
     if (saved) {
-      getBlocks();
+      ipcRenderer.once('reply-create-block', (event, data) => {
+        toggleBlocking(false);
+        getBlocks();
+      });
+    } else {
+      ipcRenderer.once('reply-update-block', (event, data) => {
+        toggleBlocking(false);
+        getBlocks();
+      });
     }
     setOpenedSaveBlocklModal(false);
     setSelectedBlock({});
@@ -68,16 +76,22 @@ const Block = () => {
     }
 
     toggleBlocking(true);
-    const req = await fetch(`/api/block/${dayId}/${blockId}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-type': 'application/json'
-      },
+    // const req = await fetch(`/api/block/${dayId}/${blockId}`, {
+    //   method: 'DELETE',
+    //   headers: {
+    //     'Content-type': 'application/json'
+    //   },
+    // });
+    ipcRenderer.send('send-delete-block', blockId);
+    ipcRenderer.once('reply-delete-block', (event, data) => {
+      console.log('data=>', data);
+      toggleBlocking(false);
+      getBlocks();
     });
 
-    const res = await req.json();
-    toggleBlocking(false);
-    getBlocks();
+    // const res = await req.json();
+    // toggleBlocking(false);
+    // getBlocks();
   }
 
   const resetBlocks = async () => {
@@ -92,13 +106,7 @@ const Block = () => {
     }
     
     toggleBlocking(true);
-    // const req = await fetch(`/api/block/${dayId}`, {
-    //   method: 'DELETE',
-    //   headers: {
-    //     'Content-type': 'application/json'
-    //   },
-    // });
-    ipcRenderer.send('send-delete-blocks');
+    ipcRenderer.send('send-delete-blocks', dayId);
     ipcRenderer.once('reply-delete-blocks', (event, data) => {
       console.log('data=>', data);
       toggleBlocking(false);

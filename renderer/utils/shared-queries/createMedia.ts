@@ -1,8 +1,6 @@
-import { IMedia } from "../../types";
 import { getVideoDurationInSeconds } from 'get-video-duration-electron';
-import { Database } from "sqlite3";
 
-export async function createMedia(conn: Database, blockId: number, media: IMedia[]) {
+export async function createMedia(conn, blockId, media) {
   const queries = conn?.prepare(
     'INSERT INTO media (block_id,path,filename,duration,played) VALUES (?,?,?,?,?)'
   );
@@ -20,7 +18,7 @@ export async function createMedia(conn: Database, blockId: number, media: IMedia
   queries?.finalize();
 }
 
-async function getDuration(path: string) {
+async function getDuration(path) {
   try {
     const duration = await getVideoDurationInSeconds(path)
     return Math.round(duration / 60);

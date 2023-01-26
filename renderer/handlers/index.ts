@@ -1,7 +1,7 @@
 import { sendChannels, createChannel } from './channel';
 import { createDB, deleteDB, exportDB } from './settings';
 import { sendDays } from './week'
-import { sendBlocks, deleteBlocks } from './block';
+import { sendBlocks, deleteBlocks, createBlock, updateBlock, deleteBlock } from './block';
 
 export {
   createDB,
@@ -11,5 +11,8 @@ export {
   createChannel,
   sendDays,
   sendBlocks,
-  deleteBlocks
+  deleteBlocks,
+  createBlock,
+  updateBlock,
+  deleteBlock
 }

@@ -4,6 +4,7 @@ import { Button, RowItem } from '../../styles/form.style';
 import { useRouter } from 'next/router';
 import { PathSelector } from './index.style';
 import { useBlockUI } from '../AppProviders/BlockUIProvider';
+import { ipcRenderer } from 'electron';
 
 interface ISaveBlockProps {
   block?: IBlock;
@@ -85,28 +86,31 @@ const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
     e.preventDefault();
     if(!id) {
       toggleBlocking(true);
-      const req = await fetch('/api/block', {
-        method: 'POST',
-        headers: {
-          'Content-type': 'application/json'
-        },
-        body: JSON.stringify({ ...form, media })
-      });
-      await req.json();
+      // const req = await fetch('/api/block', {
+        //   method: 'POST',
+        //   headers: {
+          //     'Content-type': 'application/json'
+          //   },
+          //   body: JSON.stringify({ ...form, media })
+          // });
+          // await req.json();
+      ipcRenderer.send('send-create-block', {...form, media});
       toggleBlocking(false);
+      onClose(true);
     } else {
       toggleBlocking(true);
-      const req = await fetch(`/api/block/${dayId}/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-type': 'application/json'
-        },
-        body: JSON.stringify({ ...form, media })
-      });
-      await req.json();
+      // const req = await fetch(`/api/block/${dayId}/${id}`, {
+        //   method: 'PUT',
+        //   headers: {
+          //     'Content-type': 'application/json'
+          //   },
+          //   body: JSON.stringify({ ...form, media })
+          // });
+          // await req.json();
+      ipcRenderer.send('send-update-block', {...form, media, blockId: id});
       toggleBlocking(false);
+      onClose(false);
     }
-    onClose(true);
   }
 
   return (
