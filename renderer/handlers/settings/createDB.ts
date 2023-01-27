@@ -43,6 +43,7 @@ const statements = [
       path TEXT,
       filename TEXT,
       duration INTEGER,
+      last_date_played TEXT,
       played INTEGER,
       FOREIGN KEY (block_id) REFERENCES block (id)
       ON DELETE CASCADE
