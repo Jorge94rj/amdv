@@ -76,22 +76,12 @@ const Block = () => {
     }
 
     toggleBlocking(true);
-    // const req = await fetch(`/api/block/${dayId}/${blockId}`, {
-    //   method: 'DELETE',
-    //   headers: {
-    //     'Content-type': 'application/json'
-    //   },
-    // });
     ipcRenderer.send('send-delete-block', blockId);
     ipcRenderer.once('reply-delete-block', (event, data) => {
       console.log('data=>', data);
       toggleBlocking(false);
       getBlocks();
     });
-
-    // const res = await req.json();
-    // toggleBlocking(false);
-    // getBlocks();
   }
 
   const resetBlocks = async () => {
@@ -145,7 +135,7 @@ const Block = () => {
           </BlockItem>
         ))}
       </BlockList>
-      <DynamicModal open={openedSaveBlockModal} onClose={closeSaveBlockModal} width="600px" height="460px">
+      <DynamicModal open={openedSaveBlockModal} onClose={closeSaveBlockModal} width="600px" height="520px">
         <SaveBlockModal block={selectedBlock} minStartTime={minStartTime} onClose={closeSaveBlockModal} />
       </DynamicModal>
     </>

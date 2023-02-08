@@ -35,6 +35,7 @@ const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
     start_time: start_time || minStartTime,
     len: len || 1,
     day_id: dayId,
+    duration: ''
   });
 
   useEffect(() => {
@@ -84,29 +85,14 @@ const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
 
   const handleSubmit = async (e: Event & FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log('data-sent', {...form, media})
     if(!id) {
       toggleBlocking(true);
-      // const req = await fetch('/api/block', {
-        //   method: 'POST',
-        //   headers: {
-          //     'Content-type': 'application/json'
-          //   },
-          //   body: JSON.stringify({ ...form, media })
-          // });
-          // await req.json();
       ipcRenderer.send('send-create-block', {...form, media});
       toggleBlocking(false);
       onClose(true);
     } else {
       toggleBlocking(true);
-      // const req = await fetch(`/api/block/${dayId}/${id}`, {
-        //   method: 'PUT',
-        //   headers: {
-          //     'Content-type': 'application/json'
-          //   },
-          //   body: JSON.stringify({ ...form, media })
-          // });
-          // await req.json();
       ipcRenderer.send('send-update-block', {...form, media, blockId: id});
       toggleBlocking(false);
       onClose(false);
@@ -147,6 +133,12 @@ const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
       </RowItem>
       <RowItem>
         <input name="len" type="number" min={1} value={form.len} onChange={handleChange} />
+      </RowItem>
+      <RowItem>
+        <label>Media duration (default is automatic or 25)</label>
+      </RowItem>
+      <RowItem>
+        <input name="duration" type="number" value={form.duration} onChange={handleChange} />
       </RowItem>
       <RowItem>
         <Button 
