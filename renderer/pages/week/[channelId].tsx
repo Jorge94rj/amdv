@@ -13,7 +13,7 @@ const Week = () => {
   const router = useRouter();
   const { toggleBlocking } = useBlockUI();
   const { channelId } = router.query;
-  const [days, setDays] = useState<IDay[]>([]);
+  const [channelDays, setChannelDays] = useState<IDay[]>([]);
 
   useEffect(() => {
     if (channelId) {
@@ -26,7 +26,7 @@ const Week = () => {
     toggleBlocking(true);
     ipcRenderer.send('send-days', channelId);
     ipcRenderer.once('reply-days', (event, data) => {
-      setDays(data.days);
+      setChannelDays(data.days);
       toggleBlocking(false);
     });
 
@@ -43,7 +43,7 @@ const Week = () => {
       </h3>
       <AssetList>
         {
-          days.map((day) => (
+          channelDays.map((day) => (
             <Card key={day.id} clickable={true}>
               <AssetItem onClick={() => router.push({
                   pathname: `/block/${channelId}/${day.id}`,

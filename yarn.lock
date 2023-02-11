@@ -3665,6 +3665,11 @@
   "resolved" "https://registry.npmjs.org/punycode/-/punycode-2.2.0.tgz"
   "version" "2.2.0"
 
+"python-shell@^3.0.1":
+  "integrity" "sha512-TWeotuxe1auhXa5bGRScxnc2J+0r41NBntSa6RYZtMBLtAEsvCboKrEbW6DvASosWQepVkhZZlT3B5Ei766G+Q=="
+  "resolved" "https://registry.npmjs.org/python-shell/-/python-shell-3.0.1.tgz"
+  "version" "3.0.1"
+
 "randombytes@^2.1.0":
   "integrity" "sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ=="
   "resolved" "https://registry.npmjs.org/randombytes/-/randombytes-2.1.0.tgz"

@@ -23,22 +23,27 @@ const supportedMedia = [
 const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
   const router = useRouter();
   const { toggleBlocking } = useBlockUI();
-  const { channelId, dayId } = router.query;
-  const {id, name, start_time, len} = block || {};
+  const { channelId, dayId, channelDayId } = router.query;
+  const {id, name, content_id, start_time, end_time, len} = block || {};
   const inputFileRef = useRef<HTMLInputElement>(null);
 
+  // const [minStartTime, setMinStartTime] = useState('00:00');
+  const [availableDirs, setAvailableDirs] = useState([]);
   const [media, setMedia] = useState<IMedia[]>([]);
 
   const [form, setForm] = useState({
     id: id || null,
     name: name || '',
     start_time: start_time || minStartTime,
-    len: len || 1,
-    day_id: dayId,
-    duration: ''
+    end_time: end_time || '',
+    len: len || 2,
+    channel_day_id: channelDayId,
+    duration: '',
+    content_id: content_id || ''
   });
 
   useEffect(() => {
+    getDirs();
     const current = inputFileRef.current;
     if (current !== null) {
       current.setAttribute('directory', '');
@@ -46,6 +51,15 @@ const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputFileRef]);
+
+  const getDirs = () => {
+    ipcRenderer.send('send-get-dirs');
+    ipcRenderer.once('reply-get-dirs', async (event, data) => {
+      console.log('data=>', data)
+      setAvailableDirs(data.dirs);
+      // toggleBlocking(false);
+    });
+  }
 
   const handleChange = (e: HandleEventChangeInterface) => {
     const { value, name } = e.target;
@@ -55,32 +69,35 @@ const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
     })
   }
 
-  const handleFile = async (e: ChangeEvent<HTMLInputElement>) => {
-    setMedia([]);
-    const files = e.target.files;
-    if (files) {
-      for (const file in files) {
-        const fileObj = files[file] as File & {path: 'string'};
-        const filename = fileObj.name;
-        if (filename) {
-          const ext = filename.split('.')[1]?.toUpperCase()
-          if (supportedMedia.indexOf(ext) !== -1 && fileObj?.webkitRelativePath && fileObj.name !== '.DS_Store') {
-            const relativepathArr = fileObj.webkitRelativePath.split('/');
-            relativepathArr.pop();
-            const relativepath = relativepathArr.join('/').concat('/');
-            media.push({
-              fullpath: fileObj.path,
-              path: relativepath,
-              filename,
-              duration: 0,
-              played: 0
-            })
-          }
-        }
-      }
-    }
-    const sorted = media.sort((a,b) => (a.filename > b.filename) ? 1 : ((b.filename > a.filename) ? -1 : 0));
-    setMedia([...sorted]);
+  const handleStartTimeChange = (e: HandleEventChangeInterface) => {
+    const { value, name } = e.target;
+    setForm({
+      ...form,
+      [name]: value,
+      ['content_id']: '',
+      ['end_time']: ''
+    });
+  }
+
+  const onDirSelected = (e) => {
+    // handleChange(e);
+    console.log('select_value=>', e.target.value)
+    // const dirInfo = JSON.parse(e.target.value);
+    const dirInfo = availableDirs.find(d => d.id.toString() === e.target.value)
+    console.log('offset=>', dirInfo)
+    const offset = dirInfo.avg_duration;
+    const now = new Date(`1994-10-19T${form.start_time}:00`);
+    now.setMinutes(now.getMinutes() + (offset * form.len));
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const blockDuration = `${hours < 10 ? ('0' + hours) : hours}:${minutes < 10 ? ('0' + minutes): minutes}`;
+    console.log('duration=>', blockDuration)
+    setForm({
+      ...form,
+      ['content_id']: e.target.value,
+      ['end_time']: blockDuration
+    })
+    // form.end_time = blockDuration;
   }
 
   const handleSubmit = async (e: Event & FormEvent<HTMLFormElement>) => {
@@ -111,22 +128,29 @@ const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
         <label>Start time</label>
       </RowItem>
       <RowItem>
-        <input name="start_time" type="time" value={form.start_time} onChange={handleChange} />
+        <input name="start_time" type="time" value={form.start_time} onChange={handleStartTimeChange} />
       </RowItem>
       <RowItem>
-        <label>Path</label>
+        <label>End time</label>
       </RowItem>
       <RowItem>
-        <PathSelector onClick={() => inputFileRef?.current?.click()}>
-          <label>Click here to choose a file</label>
-          <input
-            ref={inputFileRef}
-            name="path"
-            type="file"
-            accept="video/mp4,video/x-m4v,video/*"
-            multiple
-            onChange={handleFile} />
-        </PathSelector>
+        <span style={{'color': '#cccccc'}}>
+          {form.end_time ? form.end_time : 'Select directory to estimate end time'}
+        </span>
+      </RowItem>
+      <RowItem>
+        <label>Available directories</label>
+      </RowItem>
+      <RowItem>
+        <select name='content_id' onChange={onDirSelected} value={form.content_id}>
+          <option value='' disabled>Select media</option>
+          {
+            availableDirs.map(d => (
+              <option key={d.id} value={d.id}>{d.name} [{d.avg_duration} min]</option>
+            ))
+          }                    
+        </select>
+        {/* <input name="len" type="number" min={1} value={form.len} onChange={handleChange} /> */}
       </RowItem>
       <RowItem>
         <label>Items to play</label>
@@ -134,12 +158,12 @@ const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
       <RowItem>
         <input name="len" type="number" min={1} value={form.len} onChange={handleChange} />
       </RowItem>
-      <RowItem>
+      {/* <RowItem>
         <label>Media duration (default is automatic or 25)</label>
       </RowItem>
       <RowItem>
         <input name="duration" type="number" value={form.duration} onChange={handleChange} />
-      </RowItem>
+      </RowItem> */}
       <RowItem>
         <Button 
           type="submit"
@@ -147,7 +171,7 @@ const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
           disabled={
             !form.start_time || 
             !form.len || 
-            (media.length == 0 && !id) || 
+            !form.content_id || 
             (form.start_time < minStartTime && !id)
           }>
             Save

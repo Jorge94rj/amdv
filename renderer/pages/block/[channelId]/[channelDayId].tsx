@@ -11,30 +11,33 @@ import CloseIcon from '../../../public/trash.svg';
 import { useBlockUI } from "../../../components/AppProviders/BlockUIProvider"
 import Swal from "sweetalert2"
 import { ipcRenderer } from "electron"
+import CloneBlocksModal from "../../../components/CloneBlocksModal"
 
 const Block = () => {
   const router = useRouter();
   const { toggleBlocking } = useBlockUI();
-  const { channelId, dayId, dayName } = router.query;
+  const { channelDayId, dayId, channelId } = router.query;
 
   const [minStartTime, setMinStartTime] = useState('00:00');
   const [selectedBlock, setSelectedBlock] = useState<IBlock>();
   const [blocks, setBlocks] = useState<IBlock[]>([]);
 
   useEffect(() => {
-    if (dayId) {
-      getBlocks();
-    }
+    getBlocks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dayId])
+  }, [])
 
   const getBlocks = async () => {
     toggleBlocking(true);
-    ipcRenderer.send('send-blocks', dayId);
+    ipcRenderer.send('send-blocks', {channelId, channelDayId});
     ipcRenderer.once('reply-blocks', (event, data) => {
       const b = data.blocks || [];
       setBlocks([...b]);
-      setMinStartTime(data.minStartTime);
+      const blocksLen = b.length;
+      if (blocksLen > 0) {
+        const endTime = b[blocksLen-1].end_time
+        setMinStartTime(endTime);
+      }
       toggleBlocking(false);
     });
   }
@@ -57,6 +60,17 @@ const Block = () => {
     }
     setOpenedSaveBlocklModal(false);
     setSelectedBlock({});
+  }
+
+  const [openedCloneBlocksModal, setOpenedCloneBlocksModal] = useState(false);
+  const openCloneBlocksModal = () => {
+    setOpenedCloneBlocksModal(true);
+  }
+  const closeCloneBlocksModal = (saved) => {
+    setOpenedCloneBlocksModal(false);
+    if (saved) {
+      getBlocks();
+    }
   }
 
   const updateBlock = (block: IBlock) => {
@@ -107,28 +121,35 @@ const Block = () => {
 
   return (
     <>
-      <h3>Blocks for {dayName}</h3>
+      <h3>Blocks</h3>
       <ActionHeader>
-        <Button onClick={openSaveBlocklModal} disabled={minStartTime > '23:59'}>
+        <Button onClick={openSaveBlocklModal}>
           Add
+        </Button>
+        <Button onClick={openCloneBlocksModal}>
+          Clone from
         </Button>
         <Button onClick={resetBlocks} disabled={blocks.length == 0}>
           Reset blocks
         </Button>
+        {/* <select>
+          <option value="" disabled>Clone from</option>
+        </select> */}
       </ActionHeader>
       <BlockList>
         {blocks.map((b) => (
-          <BlockItem key={b.id}>
+          <BlockItem key={b.block_id}>
             <LeftContent>
               <label>{b.name || 'Untitled'}</label>
             </LeftContent>
             <RightContent>
               <label>Starts at: {b.start_time}</label>
+              {/* <label>Ends at: {b.end_time}</label> */}
               <label>Count: {b.len}</label>
               <ButtonItem>
                 <Image src={EditIcon} onClick={() => updateBlock(b)} />
               </ButtonItem>
-              <ButtonItem onClick={() => deleteBlock(b.id)}>
+              <ButtonItem onClick={() => deleteBlock(b.block_id)}>
                 <Image src={CloseIcon} />
               </ButtonItem>
             </RightContent>
@@ -137,6 +158,9 @@ const Block = () => {
       </BlockList>
       <DynamicModal open={openedSaveBlockModal} onClose={closeSaveBlockModal} width="600px" height="520px">
         <SaveBlockModal block={selectedBlock} minStartTime={minStartTime} onClose={closeSaveBlockModal} />
+      </DynamicModal>
+      <DynamicModal open={openedCloneBlocksModal} onClose={closeCloneBlocksModal} width="600px" height="248px">
+        <CloneBlocksModal onClose={closeCloneBlocksModal} />
       </DynamicModal>
     </>
   )

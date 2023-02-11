@@ -39,9 +39,9 @@ export const createChannel = ipcMain.on('send-create-channel', (event, arg) => {
 })
 
 async function createDays(channelId) {
-  const queries = conn?.prepare('INSERT INTO day (day,channel_id) VALUES (?,?)');
-  for (let i = 0; i < 7; i++) {
-    queries?.run([i,channelId]);
+  const queries = conn?.prepare('INSERT INTO channel_day (channel_id,day_id) VALUES (?,?)');
+  for (let i = 1; i <= 7; i++) {
+    queries?.run([channelId, i]);
   }
   queries?.finalize();
 }

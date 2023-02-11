@@ -36,13 +36,17 @@ export interface IDay {
   id: number;
   day: number;
   channel_id: number;
+  day_id: number;
 }
 
 export interface IBlock {
   id?: number;
   name?: string;
   start_time?: string;
+  end_time?: string;
   // path?: string;
+  content_id?: number;
+  block_id?: number;
   len?: number;
   channel_id?: number | undefined;
   day_id?: number | undefined;

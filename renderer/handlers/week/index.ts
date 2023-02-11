@@ -14,10 +14,11 @@ export const sendDays = ipcMain.on("send-days", (event, channelId) => {
   try {
     innitConnection(event);
     conn?.all(
-      "SELECT * FROM day WHERE channel_id= ?",
+      "SELECT * FROM channel_day cd INNER JOIN day d ON cd.day_id = d.id WHERE channel_id= ?",
       [channelId],
       (err, rows) => {
         // conn?.close();
+        console.log('reply-days', rows)
         event.reply("reply-days", { days: rows });
       }
     );
