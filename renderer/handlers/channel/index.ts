@@ -24,7 +24,6 @@ export const sendChannels = ipcMain.on('send-channels', (event, arg) => {
 });
 
 export const createChannel = ipcMain.on('send-create-channel', (event, arg) => {
-  console.log('ARG=>', arg);
   try {
     innitConnection(event);
     const channel = arg;

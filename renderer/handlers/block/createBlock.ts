@@ -15,7 +15,6 @@ export const createBlock = ipcMain.on('send-create-block', (event, block) => {
   innitConnection(event);
   try {
     const { name, start_time, end_time, content_id, len, channel_day_id } = block;
-    console.log('data_received=>', block);
     conn?.run('INSERT INTO block(name, start_time, end_time, content_id, len) VALUES (?,?,?,?,?)', 
     [name, start_time, end_time, content_id, len], async function err() {
       conn?.run('INSERT INTO channel_day_block(channel_day_id, block_id) VALUES (?,?)', [channel_day_id, this.lastID])

@@ -19,10 +19,13 @@ def is_video_file(file):
   return ext in supportedMedia
 
 def get_video_length(file):
-  video = cv2.VideoCapture(file)
-  frame_count = video.get(cv2.CAP_PROP_FRAME_COUNT)
-  fps = video.get(cv2.CAP_PROP_FPS)
-  return int(float(frame_count / fps) / 60)
+  try:
+    video = cv2.VideoCapture(file)
+    frame_count = video.get(cv2.CAP_PROP_FRAME_COUNT)
+    fps = video.get(cv2.CAP_PROP_FPS)
+    return int(float(frame_count / fps) / 60)
+  except:
+    return 0
   # try:
   #   result = subprocess.check_output(
   #             f'ffprobe -v quiet -show_streams -select_streams v:0 -of json "{file}"',
@@ -81,12 +84,13 @@ for dir in os.scandir(selected_path):
           duration = get_video_length(f'{dir_path}/{file}')
           if duration == 0:
             failedScanFiles.append(file)
-          scannedFiles.append({
-            # 'path': dir_path,
-            'path': f'{os.path.relpath(dir_path, selected_path)}/',
-            'filepath': file,
-            'duration': duration
-          })
+          else:
+            scannedFiles.append({
+              # 'path': dir_path,
+              'path': f'{os.path.relpath(dir_path, selected_path)}/',
+              'filepath': file,
+              'duration': duration
+            })
     dirs.append({
       'dir': dir.name,
       'files': scannedFiles

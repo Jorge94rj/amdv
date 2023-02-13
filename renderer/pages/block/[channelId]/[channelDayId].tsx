@@ -110,7 +110,7 @@ const Block = () => {
     }
     
     toggleBlocking(true);
-    ipcRenderer.send('send-delete-blocks', dayId);
+    ipcRenderer.send('send-delete-blocks', channelDayId);
     ipcRenderer.once('reply-delete-blocks', (event, data) => {
       console.log('data=>', data);
       toggleBlocking(false);

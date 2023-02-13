@@ -14,7 +14,6 @@ export const sendBlocks = ipcMain.on("send-blocks", (event, data) => {
   innitConnection(event);
   try {
     const {channelId, channelDayId} = data;
-    console.log('data_from_fe', channelDayId)
     conn?.all(`
       SELECT * FROM channel_day_block cdb 
       INNER JOIN channel_day cd ON cdb.channel_day_id = cd.id
@@ -53,9 +52,9 @@ export const sendBlocks = ipcMain.on("send-blocks", (event, data) => {
   }
 });
 
-export const deleteBlocks = ipcMain.on('send-delete-blocks', (event, dayId) => {
+export const deleteBlocks = ipcMain.on('send-delete-blocks', (event, channelDayId) => {
     try {
-    conn?.run('DELETE FROM block WHERE day_id=?',[dayId]);
+    conn?.run(`DELETE FROM channel_day_block WHERE channel_day_id = ?`,[channelDayId]);
     event.reply('reply-delete-blocks', { message: 'Blocks deleted succesfully' });
   } catch (error) {
     event.reply('reply-delete-blocks', error);

@@ -12,7 +12,6 @@ const innitConnection = (event) => {
 };
 
 export const getChannelBlocks = ipcMain.on('send-get-channel-blocks', (event, channelId) => {
-  console.log('called!')
   innitConnection(event);
   try {
     conn?.all(
@@ -38,7 +37,6 @@ export const cloneBlocks = ipcMain.on('send-clone-block', (event, data) => {
   innitConnection(event);
   try {
     const {channelDayId, cloneId} = data;
-    console.log('data_to_clone=>', data)
     conn?.all(
       `
         SELECT block_id FROM channel_day_block cdb
@@ -46,12 +44,9 @@ export const cloneBlocks = ipcMain.on('send-clone-block', (event, data) => {
       `, 
       [cloneId],
       (err, rows) => {
-        console.log('blocks_to_clone', rows)
-        for(const row of rows) {
-          console.log(row)
-          conn?.run('INSERT INTO channel_day_block(channel_day_id, block_id) VALUES (?,?)', [channelDayId, row.block_id]);
-        }
-        // conn?.close();
+        const queries = conn?.prepare('INSERT INTO channel_day_block(channel_day_id, block_id) VALUES (?,?)');
+        rows.map(r => queries.run([channelDayId, r.block_id]))
+        queries.finalize();
         event.reply('reply-clone-block', {blocks: rows});
       }
     );

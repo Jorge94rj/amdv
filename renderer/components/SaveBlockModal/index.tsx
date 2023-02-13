@@ -80,29 +80,22 @@ const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
   }
 
   const onDirSelected = (e) => {
-    // handleChange(e);
-    console.log('select_value=>', e.target.value)
-    // const dirInfo = JSON.parse(e.target.value);
     const dirInfo = availableDirs.find(d => d.id.toString() === e.target.value)
-    console.log('offset=>', dirInfo)
     const offset = dirInfo.avg_duration;
     const now = new Date(`1994-10-19T${form.start_time}:00`);
     now.setMinutes(now.getMinutes() + (offset * form.len));
     const hours = now.getHours();
     const minutes = now.getMinutes();
     const blockDuration = `${hours < 10 ? ('0' + hours) : hours}:${minutes < 10 ? ('0' + minutes): minutes}`;
-    console.log('duration=>', blockDuration)
     setForm({
       ...form,
       ['content_id']: e.target.value,
       ['end_time']: blockDuration
     })
-    // form.end_time = blockDuration;
   }
 
   const handleSubmit = async (e: Event & FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('data-sent', {...form, media})
     if(!id) {
       toggleBlocking(true);
       ipcRenderer.send('send-create-block', {...form, media});

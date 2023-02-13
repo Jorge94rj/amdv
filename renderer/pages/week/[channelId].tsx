@@ -26,6 +26,7 @@ const Week = () => {
     toggleBlocking(true);
     ipcRenderer.send('send-days', channelId);
     ipcRenderer.once('reply-days', (event, data) => {
+      console.log('channel_days', data.days)
       setChannelDays(data.days);
       toggleBlocking(false);
     });

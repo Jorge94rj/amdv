@@ -4,7 +4,6 @@ export async function createMedia(conn, blockId, media, duration) {
   const queries = conn?.prepare(
     'INSERT INTO media (block_id,path,filename,duration,played) VALUES (?,?,?,?,?)'
   );
-  console.log('sent_duration', duration)
   for (const item of media) {
     item.duration = duration || await getDuration(item.fullpath)
   }

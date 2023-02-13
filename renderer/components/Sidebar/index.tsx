@@ -34,6 +34,7 @@ const Sidebar = () => {
     ipcRenderer.send('send-channels');
     ipcRenderer.once('reply-channels', (event, data) => {
       console.log('data_from_main=>', data);
+      console.log('channels=>', data)
       setChannels(data);
     });
     toggleBlocking(false);

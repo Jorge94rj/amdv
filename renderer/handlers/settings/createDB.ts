@@ -26,13 +26,10 @@ const statements = [
     CREATE TABLE block(
       id INTEGER PRIMARY KEY,
       name TEXT,
-      day_id INTEGER,
       start_time TEXT,
       end_time TEXT,
       content_id INTEGER,
       len INTEGER,
-      FOREIGN KEY (day_id) REFERENCES day (id)
-      ON DELETE CASCADE,
       FOREIGN KEY (content_id) REFERENCES content (id)
       ON DELETE CASCADE
     );
@@ -47,15 +44,12 @@ const statements = [
   `
     CREATE TABLE media(
       id INTEGER PRIMARY KEY,
-      block_id INTEGER,
       content_id INTEGER,
       path TEXT,
       filename TEXT,
       duration INTEGER,
       last_date_played TEXT,
       played INTEGER,
-      FOREIGN KEY (block_id) REFERENCES block (id)
-      ON DELETE CASCADE,
       FOREIGN KEY (content_id) REFERENCES content (id)
       ON DELETE CASCADE
     );
