@@ -4,6 +4,7 @@ import { Button, RowItem } from '../../styles/form.style';
 import { useRouter } from 'next/router';
 import { PathSelector } from './index.style';
 import { useBlockUI } from '../AppProviders/BlockUIProvider';
+import Select from 'react-select'
 import { ipcRenderer } from 'electron';
 
 interface ISaveBlockProps {
@@ -24,7 +25,7 @@ const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
   const router = useRouter();
   const { toggleBlocking } = useBlockUI();
   const { channelId, dayId, channelDayId } = router.query;
-  const {id, name, content_id, start_time, end_time, len} = block || {};
+  const { id, name, content_id, start_time, end_time, len } = block || {};
   const inputFileRef = useRef<HTMLInputElement>(null);
 
   // const [minStartTime, setMinStartTime] = useState('00:00');
@@ -55,8 +56,12 @@ const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
   const getDirs = () => {
     ipcRenderer.send('send-get-dirs');
     ipcRenderer.once('reply-get-dirs', async (event, data) => {
-      console.log('data=>', data)
-      setAvailableDirs(data.dirs);
+      const mappedDirs = data.dirs.map(d => ({
+        value: d.id,
+        label: `${d.name} [${d.avg_duration} min]`,
+        avg_duration: d.avg_duration
+      }));
+      setAvailableDirs(mappedDirs);
       // toggleBlocking(false);
     });
   }
@@ -80,30 +85,30 @@ const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
   }
 
   const onDirSelected = (e) => {
-    const dirInfo = availableDirs.find(d => d.id.toString() === e.target.value)
+    const dirInfo = availableDirs.find(d => d.value === e.value)
     const offset = dirInfo.avg_duration;
     const now = new Date(`1994-10-19T${form.start_time}:00`);
     now.setMinutes(now.getMinutes() + (offset * form.len));
     const hours = now.getHours();
     const minutes = now.getMinutes();
-    const blockDuration = `${hours < 10 ? ('0' + hours) : hours}:${minutes < 10 ? ('0' + minutes): minutes}`;
+    const blockDuration = `${hours < 10 ? ('0' + hours) : hours}:${minutes < 10 ? ('0' + minutes) : minutes}`;
     setForm({
       ...form,
-      ['content_id']: e.target.value,
+      ['content_id']: e.value,
       ['end_time']: blockDuration
     })
   }
 
   const handleSubmit = async (e: Event & FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if(!id) {
+    if (!id) {
       toggleBlocking(true);
-      ipcRenderer.send('send-create-block', {...form, media});
+      ipcRenderer.send('send-create-block', { ...form, media });
       toggleBlocking(false);
       onClose(true);
     } else {
       toggleBlocking(true);
-      ipcRenderer.send('send-update-block', {...form, media, blockId: id});
+      ipcRenderer.send('send-update-block', { ...form, media, blockId: id });
       toggleBlocking(false);
       onClose(false);
     }
@@ -127,23 +132,22 @@ const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
         <label>End time</label>
       </RowItem>
       <RowItem>
-        <span style={{'color': '#cccccc'}}>
+        <span style={{ 'color': '#cccccc' }}>
           {form.end_time ? form.end_time : 'Select directory to estimate end time'}
         </span>
       </RowItem>
       <RowItem>
         <label>Available directories</label>
       </RowItem>
-      <RowItem>
-        <select name='content_id' onChange={onDirSelected} value={form.content_id}>
-          <option value='' disabled>Select media</option>
-          {
-            availableDirs.map(d => (
-              <option key={d.id} value={d.id}>{d.name} [{d.avg_duration} min]</option>
-            ))
-          }                    
-        </select>
-        {/* <input name="len" type="number" min={1} value={form.len} onChange={handleChange} /> */}
+      <RowItem style={{display: 'block'}}>
+        <Select options={availableDirs} onChange={onDirSelected} styles={
+          { control: (styles) => { 
+            return {
+              ...styles,
+              width: '100%',
+            }
+          }}
+        } />
       </RowItem>
       <RowItem>
         <label>Items to play</label>
@@ -151,23 +155,17 @@ const SaveBlockModal = ({ block, onClose, minStartTime }: ISaveBlockProps) => {
       <RowItem>
         <input name="len" type="number" min={1} value={form.len} onChange={handleChange} />
       </RowItem>
-      {/* <RowItem>
-        <label>Media duration (default is automatic or 25)</label>
-      </RowItem>
       <RowItem>
-        <input name="duration" type="number" value={form.duration} onChange={handleChange} />
-      </RowItem> */}
-      <RowItem>
-        <Button 
+        <Button
           type="submit"
           inverse
           disabled={
-            !form.start_time || 
-            !form.len || 
-            !form.content_id || 
+            !form.start_time ||
+            !form.len ||
+            !form.content_id ||
             (form.start_time < minStartTime && !id)
           }>
-            Save
+          Save
         </Button>
       </RowItem>
     </form>
