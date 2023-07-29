@@ -2,7 +2,10 @@ import sys, os
 from os import walk
 import subprocess, json
 import sqlite3
-import cv2
+try:
+  import cv2
+except ModuleNotFoundError:
+  subprocess.check_call([sys.executable, '-m', 'pip3', 'install', 'opencv-python'])
 
 #pip3 install opencv-python
 
@@ -26,21 +29,6 @@ def get_video_length(file):
     return int(float(frame_count / fps) / 60)
   except:
     return 0
-  # try:
-  #   result = subprocess.check_output(
-  #             f'ffprobe -v quiet -show_streams -select_streams v:0 -of json "{file}"',
-  #             shell=True).decode()
-  #   fields = json.loads(result)['streams'][0]
-    
-  #   if os.path.splitext(file)[1][:1] == 'mkv':
-  #     print(fields)
-
-  #   if not 'duration' in fields:
-  #     return 0
-  #   duration = fields['duration']
-  #   return int(float(duration) / 60)
-  # except:
-  #   return 0
 
 def updateDB(scannedDirs, db_dir):
   conn = sqlite3.connect(db_dir, detect_types=sqlite3.PARSE_DECLTYPES)
@@ -96,25 +84,6 @@ for dir in os.scandir(selected_path):
       'files': scannedFiles
     })
           
-# for (dir_path, dir_names, file_names) in walk(dir_path):
-#     scannedFiles = []
-#     for file in file_names:
-#       if is_video_file(file):
-#         duration = get_video_length(f'{dir_path}/{file}')
-#         if duration == 0:
-#           failedScanFiles.append(file)
-#         scannedFiles.append({
-#           'path': dir_path,
-#           'filepath': file,
-#           'duration': duration
-#         })
-#     if len(scannedFiles) > 0:
-#       dirs.append({
-#         'dir': dir_names,
-#         'files': scannedFiles
-#       })
-# print(json.dumps(dirs))
 updateDB(dirs, db_dir)
-# print(scannedFiles)
 print(json.dumps(failedScanFiles))
 sys.stdout.flush()

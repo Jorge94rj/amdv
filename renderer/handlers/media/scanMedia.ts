@@ -13,8 +13,8 @@ function getResPath() {
 
 export const scanMedia = ipcMain.on('send-scan-media', (event, arg) => {
   const resPath = getResPath();
-  const file = `${resPath}/scripts/media-importer.py`;
-  const py = new PythonShell(file);
+  const script = `${resPath}/scripts/media-importer.py`;
+  const py = new PythonShell(script);
   dialog.showOpenDialog({
     title: 'Select media path',
     properties: ['openDirectory']
