@@ -1,6 +1,7 @@
-import { app } from 'electron';
+import { app, ipcMain } from 'electron';
 import serve from 'electron-serve';
 import { createWindow } from './helpers';
+import handlers  from '../renderer/handlers'
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -30,3 +31,9 @@ if (isProd) {
 app.on('window-all-closed', () => {
   app.quit();
 });
+
+global.usrDataPath = app.getPath('userData');
+
+export {
+  handlers  
+}

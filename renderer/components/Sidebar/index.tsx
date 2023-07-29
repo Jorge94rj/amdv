@@ -1,3 +1,4 @@
+import { ipcRenderer } from "electron";
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react";
 import { Button, RowItem } from "../../styles/form.style"
@@ -29,15 +30,13 @@ const Sidebar = () => {
 
   const getChannels = async () => {
     toggleBlocking(true);
-    const req = await fetch('/api/channel', {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json'
-      },
-    })
-    const data = await req.json();
-    const resChannels = data.channels || [];
-    setChannels(resChannels)
+    setChannels([]);
+    ipcRenderer.send('send-channels');
+    ipcRenderer.once('reply-channels', (event, data) => {
+      console.log('data_from_main=>', data);
+      console.log('channels=>', data)
+      setChannels(data);
+    });
     toggleBlocking(false);
   }
 
